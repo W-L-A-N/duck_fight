@@ -19,8 +19,13 @@ class Player {
     #blockLeft;
     #frameCounterLeft;
     #frameCounterRight;
+    #damageCounter
 
     constructor(xpos, ypos, duckType) {
+        this.health = 100;
+        this.isAlive = true;
+        this.isInMap = true;
+
         this.#speed = percentOfScreenX(0.005);
         this.#junmpHeight = percentOfScreenY(-0.036);
 
@@ -35,8 +40,10 @@ class Player {
                 new Image(),
                 new Image(),
                 new Image(),
+                new Image(), // -> dead
             ],
             'right': [
+                new Image(),
                 new Image(),
                 new Image(),
                 new Image(),
@@ -48,9 +55,10 @@ class Player {
 
         this.#frameCounterLeft = 1;
         this.#frameCounterRight = 1;
+        this.#damageCounter = 0;
 
         this.#blockRight = false;
-        this.#blockLeft
+        this.#blockLeft = false;
 
         this.onGround = true;
         this.direction = 'left';
@@ -58,6 +66,8 @@ class Player {
 
         this.width = percentOfScreenX(0.03);
         this.height = percentOfScreenY(0.07);
+        this.widthDead = percentOfScreenX(0.046);
+        this.heightDead = percentOfScreenY(0.04);
         this.pos = {
             left: xpos,
             top: ypos,
@@ -87,20 +97,52 @@ class Player {
                 image = this.images[this.direction][this.#frameCounterRight];
             }
         }
-        ctx.drawImage(image, this.pos.left, this.pos.top, this.width, this.height);
+
+        if (this.#damageCounter != 0) {
+            ctx.globalAlpha = 0.7;
+            this.#damageCounter--;
+        } 
+        
+
+        if (this.isAlive) {
+            ctx.drawImage(image, this.pos.left, this.pos.top, this.width, this.height);
+        } else {
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(this.images[this.direction][6], this.pos.left, this.pos.top, this.width, this.height);
+        }
+
+        ctx.globalAlpha = 1.0;
     }
 
     junmp() {
-        if(this.onGround) {
+        if(this.onGround && this.isAlive) {
             this.vel.y = this.#junmpHeight;
         }
     }
     
     updatePos() {
-        this.#checkCollitions();
-        this.#updateOnGround();
-        this.#gravity();
-        this.#movePlayer();
+        if (this.isInMap) {
+            this.#checkCollitions();
+            this.#updateOnGround();
+            this.#gravity();
+            this.#movePlayer();
+        }
+    }
+
+    // direction if 1 ->    .   if -1  <-
+    getDamaged(damage, dir) {
+        this.health -= damage;
+        this.vel.x = percentOfScreenX(0.003) * dir;
+        this.vel.y = percentOfScreenY(-0.003);
+        this.#damageCounter = 5;
+        this.state = 'knocked';
+        if (this.health <= 0) {
+            this.isAlive = false;
+            this.width = this.widthDead;
+            this.height = this.heightDead;
+            this.vel.x = 0;
+            this.vel.y = 0;
+        }
     }
 
     #moveRight() {
@@ -237,22 +279,31 @@ class Player {
     }
 
     #movePlayer() {
-
-        switch(this.state) {
-            case 'standing':
-                this.#stop();
-                break;
-            case 'moving-right':
-                this.#moveRight();
-                break;
-            case 'moving-left':
-                this.#moveLeft();
-                break;
+        if (this.isAlive) {
+            switch(this.state) {
+                case 'standing':
+                    this.#stop();
+                    break;
+                case 'moving-right':
+                    this.#moveRight();
+                    break;
+                case 'moving-left':
+                    this.#moveLeft();
+                    break;
+                case 'knocked':
+                    this.state = 'standing';
+                    break;
+            }
         }
 
         this.pos.left += this.vel.x;
         this.pos.top += this.vel.y;
         this.pos.right = this.pos.left + this.width;
         this.pos.bottom = this.pos.top + this.height;
+
+        if (this.pos.top > canvas.height) {
+            this.isInMap = false;
+            this.isAlive = false;
+        }
     }
 }

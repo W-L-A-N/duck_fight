@@ -1,4 +1,6 @@
 function drawFrame() {
+    //clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw the map
     ctx.drawImage(selectedMap.backgroundImage, 0, 0, canvas.clientWidth, canvas.height);
 

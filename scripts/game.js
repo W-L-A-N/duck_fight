@@ -79,6 +79,12 @@ players.forEach(player => {
             player.images['left'][5].onerror = reject;
             player.images['left'][5].src = player.imagePath + '/left/walking5.png';
         }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][6].onload = resolve;
+            player.images['left'][6].onerror = reject;
+            player.images['left'][6].src = player.imagePath + '/left/dead.png';
+        }),
     );
 });
 
@@ -118,6 +124,12 @@ players.forEach(player => {
             player.images['right'][5].onload = resolve;
             player.images['right'][5].onerror = reject;
             player.images['right'][5].src = player.imagePath + '/right/walking5.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][6].onload = resolve;
+            player.images['right'][6].onerror = reject;
+            player.images['right'][6].src = player.imagePath + '/right/dead.png';
         }),
 
     );
