@@ -223,7 +223,7 @@ class Player {
 
     #gravity() {
         const gravity = percentOfScreenY(0.002);
-        const maxGravity = percentOfScreenY(0.02);
+        const maxGravity = percentOfScreenY(0.025);
         if (this.onGround) {
             if (this.vel.y > 0) {
                 this.vel.y = 0;
