@@ -25,6 +25,31 @@ const players = [
     new Player(selectedMap.playersPosition[1].x, selectedMap.playersPosition[1].y, 'yellow_duck'),
 ];
 
+const trajectories = [];
+
+
+const trajectoriesImages = {
+    claw: {
+        'left': [
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+        ],
+        'right':[
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+        ]
+    },
+
+};
+
 
 
 // loaded assets
@@ -218,6 +243,26 @@ players.forEach(player => {
     );
 });
 
+trajectoriesImages.claw['left'].forEach((image, i) => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = `../media/weapons/claw/left/${i + 1}.png`;
+        })
+    );
+});
+
+trajectoriesImages.claw['right'].forEach((image, i) => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = `../media/weapons/claw/right/${i + 1}.png`;
+        })
+    );
+});
+
 // This promis is going to wait for all the media in the assets array to load, then satrt excuting what's 
 //  inside the brackets. If the game started without waiting for assets to properly load it may not draw or play
 //  some media
@@ -238,6 +283,9 @@ window.addEventListener('keydown', ({ key }) => {
         case 'ArrowRight':
             players[0].state = 'moving-right';
             break;
+        case '\\':
+            players[0].attack();
+            break;
     }
     // player2
     switch(key) {
@@ -249,6 +297,9 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'd':
             players[1].state = 'moving-right';
+            break;
+        case '`':
+            players[1].attack();
             break;
     }
 });
