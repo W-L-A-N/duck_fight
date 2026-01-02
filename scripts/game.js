@@ -25,6 +25,31 @@ const players = [
     new Player(selectedMap.playersPosition[1].x, selectedMap.playersPosition[1].y, 'yellow_duck'),
 ];
 
+const trajectories = [];
+
+
+const trajectoriesImages = {
+    claw: {
+        'left': [
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+        ],
+        'right':[
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+            new Image(),
+        ]
+    },
+
+};
+
 
 
 // loaded assets
@@ -79,6 +104,53 @@ players.forEach(player => {
             player.images['left'][5].onerror = reject;
             player.images['left'][5].src = player.imagePath + '/left/walking5.png';
         }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][6].onload = resolve;
+            player.images['left'][6].onerror = reject;
+            player.images['left'][6].src = player.imagePath + '/left/dead.png';
+        }),
+    );
+});
+
+
+players.forEach(player => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            player.images['left'][7][0].onload = resolve;
+            player.images['left'][7][0].onerror = reject;
+            player.images['left'][7][0].src = player.imagePath + '/left/angry/standing.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][7][1].onload = resolve;
+            player.images['left'][7][1].onerror = reject;
+            player.images['left'][7][1].src = player.imagePath + '/left/angry/walking1.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][7][2].onload = resolve;
+            player.images['left'][7][2].onerror = reject;
+            player.images['left'][7][2].src = player.imagePath + '/left/angry/walking2.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][7][3].onload = resolve;
+            player.images['left'][7][3].onerror = reject;
+            player.images['left'][7][3].src = player.imagePath + '/left/angry/walking3.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][7][4].onload = resolve;
+            player.images['left'][7][4].onerror = reject;
+            player.images['left'][7][4].src = player.imagePath + '/left/angry/walking4.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['left'][7][5].onload = resolve;
+            player.images['left'][7][5].onerror = reject;
+            player.images['left'][7][5].src = player.imagePath + '/left/angry/walking5.png';
+        }),
     );
 });
 
@@ -120,6 +192,74 @@ players.forEach(player => {
             player.images['right'][5].src = player.imagePath + '/right/walking5.png';
         }),
 
+        new Promise((resolve, reject) => {
+            player.images['right'][6].onload = resolve;
+            player.images['right'][6].onerror = reject;
+            player.images['right'][6].src = player.imagePath + '/right/dead.png';
+        }),
+
+    );
+});
+
+
+players.forEach(player => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            player.images['right'][7][0].onload = resolve;
+            player.images['right'][7][0].onerror = reject;
+            player.images['right'][7][0].src = player.imagePath + '/right/angry/standing.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][7][1].onload = resolve;
+            player.images['right'][7][1].onerror = reject;
+            player.images['right'][7][1].src = player.imagePath + '/right/angry/walking1.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][7][2].onload = resolve;
+            player.images['right'][7][2].onerror = reject;
+            player.images['right'][7][2].src = player.imagePath + '/right/angry/walking2.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][7][3].onload = resolve;
+            player.images['right'][7][3].onerror = reject;
+            player.images['right'][7][3].src = player.imagePath + '/right/angry/walking3.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][7][4].onload = resolve;
+            player.images['right'][7][4].onerror = reject;
+            player.images['right'][7][4].src = player.imagePath + '/right/angry/walking4.png';
+        }),
+
+        new Promise((resolve, reject) => {
+            player.images['right'][7][5].onload = resolve;
+            player.images['right'][7][5].onerror = reject;
+            player.images['right'][7][5].src = player.imagePath + '/right/angry/walking5.png';
+        }),
+
+    );
+});
+
+trajectoriesImages.claw['left'].forEach((image, i) => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = `../media/weapons/claw/left/${i + 1}.png`;
+        })
+    );
+});
+
+trajectoriesImages.claw['right'].forEach((image, i) => {
+    assets.push(
+        new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = `../media/weapons/claw/right/${i + 1}.png`;
+        })
     );
 });
 
@@ -143,6 +283,9 @@ window.addEventListener('keydown', ({ key }) => {
         case 'ArrowRight':
             players[0].state = 'moving-right';
             break;
+        case '\\':
+            players[0].attack();
+            break;
     }
     // player2
     switch(key) {
@@ -154,6 +297,9 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'd':
             players[1].state = 'moving-right';
+            break;
+        case '`':
+            players[1].attack();
             break;
     }
 });

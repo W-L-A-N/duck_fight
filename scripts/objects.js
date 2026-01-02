@@ -19,8 +19,16 @@ class Player {
     #blockLeft;
     #frameCounterLeft;
     #frameCounterRight;
+    #damageCounter
+    #angryCounter
 
     constructor(xpos, ypos, duckType) {
+        this.health = 100;
+        this.isAlive = true;
+        this.isInMap = true;
+
+        this.charcater = duckType;
+
         this.#speed = percentOfScreenX(0.005);
         this.#junmpHeight = percentOfScreenY(-0.036);
 
@@ -35,6 +43,17 @@ class Player {
                 new Image(),
                 new Image(),
                 new Image(),
+                new Image(), // -> dead
+                // angry
+                [
+                    new Image(), // -> standing
+                    new Image(), // -> walking frame number 1...
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(), // -> dead
+                ]
             ],
             'right': [
                 new Image(),
@@ -43,21 +62,39 @@ class Player {
                 new Image(),
                 new Image(),
                 new Image(),
+                new Image(),
+                [
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                ]
             ]
         };
 
         this.#frameCounterLeft = 1;
         this.#frameCounterRight = 1;
+        this.#damageCounter = 0;
+        this.#angryCounter = 0;
 
         this.#blockRight = false;
-        this.#blockLeft
+        this.#blockLeft = false;
 
         this.onGround = true;
         this.direction = 'left';
         this.state = 'standing';
 
+        this.weapon = 'claw';
+        this.attackBlock = false;
+        this.ammo = 0;
+
         this.width = percentOfScreenX(0.03);
         this.height = percentOfScreenY(0.07);
+        this.widthDead = percentOfScreenX(0.046);
+        this.heightDead = percentOfScreenY(0.04);
         this.pos = {
             left: xpos,
             top: ypos,
@@ -73,34 +110,100 @@ class Player {
 
     draw() {
         let image;
-        if(!this.onGround) {
-            image = this.images[this.direction][0];
-            this.#frameCounterLeft = 1;
-            this.#frameCounterRight = 1;
-        } else {
-            if (this.state === 'standing') {
-                image = this.images[this.direction][0];
-            }
-            else if (this.direction === 'left') {
-                image = this.images[this.direction][this.#frameCounterLeft];
+
+        if (this.#angryCounter > 0) {
+            if(!this.onGround) {
+                image = this.images[this.direction][7][0];
+                this.#frameCounterLeft = 1;
+                this.#frameCounterRight = 1;
             } else {
-                image = this.images[this.direction][this.#frameCounterRight];
+                if (this.state === 'standing') {
+                    image = this.images[this.direction][7][0];
+                } else if (this.direction === 'left') {
+                    image = this.images[this.direction][7][this.#frameCounterLeft];
+                } else {
+                    image = this.images[this.direction][7][this.#frameCounterRight];
+                }
+            }
+
+            this.#angryCounter--;
+        } else {
+            if(!this.onGround) {
+                image = this.images[this.direction][0];
+                this.#frameCounterLeft = 1;
+                this.#frameCounterRight = 1;
+            } else {
+                if (this.state === 'standing') {
+                    image = this.images[this.direction][0];
+                } else if (this.direction === 'left') {
+                    image = this.images[this.direction][this.#frameCounterLeft];
+                } else {
+                    image = this.images[this.direction][this.#frameCounterRight];
+                }
             }
         }
-        ctx.drawImage(image, this.pos.left, this.pos.top, this.width, this.height);
+
+
+        if (this.#damageCounter > 0) {
+            ctx.globalAlpha = 0.7;
+            this.#damageCounter--;
+        } 
+        
+
+        if (this.isAlive) {
+            ctx.drawImage(image, this.pos.left, this.pos.top, this.width, this.height);
+        } else {
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(this.images[this.direction][6], this.pos.left, this.pos.top, this.width, this.height);
+        }
+
+        ctx.globalAlpha = 1.0;
     }
 
     junmp() {
-        if(this.onGround) {
+        if(this.onGround && this.isAlive) {
             this.vel.y = this.#junmpHeight;
         }
     }
     
     updatePos() {
-        this.#checkCollitions();
-        this.#updateOnGround();
-        this.#gravity();
-        this.#movePlayer();
+        if (this.isInMap) {
+            this.#checkCollitions();
+            this.#updateOnGround();
+            this.#gravity();
+            this.#movePlayer();
+        }
+    }
+
+
+    attack() {
+        if (this.ammo != 0) this.ammo--;
+
+        if (this.weapon === 'claw') {
+            if (!this.attackBlock) {
+                trajectories.push(new Claw(this.pos.left, this.pos.top, this.direction, this.charcater));
+                this.attackBlock = true;
+                setTimeout(() => {this.attackBlock = false}, 400);
+            }
+        }
+    }
+
+
+    // direction if 1 ->    .   if -1  <-
+    getDamaged(damage, dir) {
+        this.health -= damage;
+        this.vel.x = percentOfScreenX(0.003) * dir;
+        this.vel.y = percentOfScreenY(-0.003);
+        this.#damageCounter = 5;
+        this.#angryCounter = 150;
+        this.state = 'knocked';
+        if (this.health <= 0) {
+            this.isAlive = false;
+            this.width = this.widthDead;
+            this.height = this.heightDead;
+            this.vel.x = 0;
+            this.vel.y = 0;
+        }
     }
 
     #moveRight() {
@@ -237,22 +340,98 @@ class Player {
     }
 
     #movePlayer() {
-
-        switch(this.state) {
-            case 'standing':
-                this.#stop();
-                break;
-            case 'moving-right':
-                this.#moveRight();
-                break;
-            case 'moving-left':
-                this.#moveLeft();
-                break;
+        if (this.isAlive) {
+            switch(this.state) {
+                case 'standing':
+                    this.#stop();
+                    break;
+                case 'moving-right':
+                    this.#moveRight();
+                    break;
+                case 'moving-left':
+                    this.#moveLeft();
+                    break;
+                case 'knocked':
+                    this.state = 'standing';
+                    break;
+            }
         }
 
         this.pos.left += this.vel.x;
         this.pos.top += this.vel.y;
         this.pos.right = this.pos.left + this.width;
         this.pos.bottom = this.pos.top + this.height;
+
+        if (this.pos.top > canvas.height) {
+            this.isInMap = false;
+            this.isAlive = false;
+        }
     }
+}
+
+
+class Claw {
+    constructor(xpos, ypos, dir, charcaterType) {
+        this.attacker = charcaterType;
+        this.width = percentOfScreenX(0.04);
+        this.height = percentOfScreenY(0.07);
+        this.delayCounter = 0;
+        this.dir = dir;
+        this.damage = 3;
+        this.frameCounter = 1;
+        this.isActive = true;
+        this.animationActive = true;
+        if (this.dir === 'left') {
+            this.pos = {
+                left: xpos - percentOfScreenX(0.027),
+                top: ypos,
+                right: xpos + this.width,
+                bottom: ypos + this.height,
+            };
+        } else {
+                this.pos = {
+                left: xpos + percentOfScreenX(0.015),
+                top: ypos,
+                right: xpos + this.width,
+                bottom: ypos + this.height,
+            };
+        }
+    }
+
+    draw() {
+        if(this.animationActive) {
+            ctx.drawImage(trajectoriesImages.claw[this.dir][this.frameCounter],
+                this.pos.left,
+                this.pos.top,
+                this.width,
+                this.height
+            );
+            if(this.delayCounter === 0) {
+                this.frameCounter++
+                this.delayCounter = 1;
+            } else {
+                this.delayCounter--;
+            }
+            if (this.frameCounter === 6){
+                this.isActive = false;
+                this.animationActive = false;
+            } 
+        }
+    }
+
+    collisionUpdate() {
+        if (this.isActive) {
+            players.forEach(player => {
+                const yCollision = player.pos.top < this.pos.bottom && this.pos.bottom > this.pos.top;
+                const xCollision = player.pos.left < this.pos.right && player.pos.right > this.pos.left;
+    
+                if (yCollision && xCollision && player.charcater != this.attacker) {
+                    const direction = this.dir === 'left' ? -1:1;
+                    player.getDamaged(this.damage, direction, direction);
+                    this.isActive = false;
+                }
+            });
+        }
+    }
+
 }
