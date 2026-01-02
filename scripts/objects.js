@@ -20,6 +20,7 @@ class Player {
     #frameCounterLeft;
     #frameCounterRight;
     #damageCounter
+    #angryCounter
 
     constructor(xpos, ypos, duckType) {
         this.health = 100;
@@ -41,6 +42,16 @@ class Player {
                 new Image(),
                 new Image(),
                 new Image(), // -> dead
+                // angry
+                [
+                    new Image(), // -> standing
+                    new Image(), // -> walking frame number 1...
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(), // -> dead
+                ]
             ],
             'right': [
                 new Image(),
@@ -50,12 +61,22 @@ class Player {
                 new Image(),
                 new Image(),
                 new Image(),
+                [
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                ]
             ]
         };
 
         this.#frameCounterLeft = 1;
         this.#frameCounterRight = 1;
         this.#damageCounter = 0;
+        this.#angryCounter = 0;
 
         this.#blockRight = false;
         this.#blockLeft = false;
@@ -83,22 +104,41 @@ class Player {
 
     draw() {
         let image;
-        if(!this.onGround) {
-            image = this.images[this.direction][0];
-            this.#frameCounterLeft = 1;
-            this.#frameCounterRight = 1;
-        } else {
-            if (this.state === 'standing') {
-                image = this.images[this.direction][0];
-            }
-            else if (this.direction === 'left') {
-                image = this.images[this.direction][this.#frameCounterLeft];
+
+        if (this.#angryCounter > 0) {
+            if(!this.onGround) {
+                image = this.images[this.direction][7][0];
+                this.#frameCounterLeft = 1;
+                this.#frameCounterRight = 1;
             } else {
-                image = this.images[this.direction][this.#frameCounterRight];
+                if (this.state === 'standing') {
+                    image = this.images[this.direction][7][0];
+                } else if (this.direction === 'left') {
+                    image = this.images[this.direction][7][this.#frameCounterLeft];
+                } else {
+                    image = this.images[this.direction][7][this.#frameCounterRight];
+                }
+            }
+
+            this.#angryCounter--;
+        } else {
+            if(!this.onGround) {
+                image = this.images[this.direction][0];
+                this.#frameCounterLeft = 1;
+                this.#frameCounterRight = 1;
+            } else {
+                if (this.state === 'standing') {
+                    image = this.images[this.direction][0];
+                } else if (this.direction === 'left') {
+                    image = this.images[this.direction][this.#frameCounterLeft];
+                } else {
+                    image = this.images[this.direction][this.#frameCounterRight];
+                }
             }
         }
 
-        if (this.#damageCounter != 0) {
+
+        if (this.#damageCounter > 0) {
             ctx.globalAlpha = 0.7;
             this.#damageCounter--;
         } 
@@ -135,6 +175,7 @@ class Player {
         this.vel.x = percentOfScreenX(0.003) * dir;
         this.vel.y = percentOfScreenY(-0.003);
         this.#damageCounter = 5;
+        this.#angryCounter = 150;
         this.state = 'knocked';
         if (this.health <= 0) {
             this.isAlive = false;
