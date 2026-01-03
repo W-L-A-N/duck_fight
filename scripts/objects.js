@@ -181,7 +181,7 @@ class Player {
 
         if (this.weapon === 'claw') {
             if (!this.attackBlock) {
-                trajectories.push(new Claw(this.pos.left, this.pos.top, this.direction, this.charcater));
+                projectiles.push(new Claw(this.pos.left, this.pos.top, this.direction, this.charcater));
                 this.attackBlock = true;
                 setTimeout(() => {this.attackBlock = false}, 400);
             }
@@ -392,7 +392,7 @@ class Claw {
                 this.pos = {
                 left: xpos + percentOfScreenX(0.015),
                 top: ypos,
-                right: xpos + this.width,
+                right: xpos + this.width + percentOfScreenX(0.015),
                 bottom: ypos + this.height,
             };
         }
@@ -400,7 +400,7 @@ class Claw {
 
     draw() {
         if(this.animationActive) {
-            ctx.drawImage(trajectoriesImages.claw[this.dir][this.frameCounter],
+            ctx.drawImage(projectilesImages.claw[this.dir][this.frameCounter],
                 this.pos.left,
                 this.pos.top,
                 this.width,
@@ -422,7 +422,7 @@ class Claw {
     collisionUpdate() {
         if (this.isActive) {
             players.forEach(player => {
-                const yCollision = player.pos.top < this.pos.bottom && this.pos.bottom > this.pos.top;
+                const yCollision = player.pos.top <= this.pos.bottom && player.pos.bottom >= this.pos.top;
                 const xCollision = player.pos.left < this.pos.right && player.pos.right > this.pos.left;
     
                 if (yCollision && xCollision && player.charcater != this.attacker) {
