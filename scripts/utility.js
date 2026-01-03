@@ -9,11 +9,11 @@ function drawFrame() {
         player.draw();
     });
 
-    trajectories.forEach((trajectorie, i) => {
-        if (trajectorie.animationActive) {
-            trajectorie.draw();
+    projectiles.forEach((projectile, i) => {
+        if (projectile.animationActive) {
+            projectile.draw();
         } else {
-            trajectories.splice(i, 1);
+            projectiles.splice(i, 1);
         }
     });
 }
@@ -23,8 +23,8 @@ function updateFrame() {
         player.updatePos();
     });
 
-    trajectories.forEach(trajectorie => {
-        trajectorie.collisionUpdate();
+    projectiles.forEach(projectile => {
+        projectile.collisionUpdate();
     });
 }
 

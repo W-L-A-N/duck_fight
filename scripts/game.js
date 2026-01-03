@@ -25,10 +25,35 @@ const players = [
     new Player(selectedMap.playersPosition[1].x, selectedMap.playersPosition[1].y, 'yellow_duck'),
 ];
 
-const trajectories = [];
+const projectiles = [];
 
 
-const trajectoriesImages = {
+const weaponsImages = {
+    sword: {
+        'left': [
+            new Image(),
+            new Image(),
+        ],
+        'right': [
+            new Image(),
+            new Image(),
+        ],
+    },
+
+    gun: {
+        'left': new Image(),
+        'right': new Image(),
+    },
+
+    AK: {
+        'left': new Image(),
+        'right': new Image(),
+    }
+
+};
+
+
+const projectilesImages = {
     claw: {
         'left': [
             new Image(),
@@ -48,6 +73,21 @@ const trajectoriesImages = {
         ]
     },
 
+    slash: {
+        'left': new Image(),
+        'right': new Image()
+    },
+
+    bulletGun: {
+        'left': new Image(),
+        'right': new Image()
+    },
+
+    bulletAK: {
+        'left': new Image(),
+        'right': new Image()
+    }
+
 };
 
 
@@ -63,6 +103,98 @@ const assets = [
         Map1.backgroundImage.onerror = reject;
         Map1.backgroundImage.src = Map1.imagePath;
     }),
+
+    // sword
+    new Promise((resolve, reject) => {
+        weaponsImages.sword['left'][0].onload = resolve;
+        weaponsImages.sword['left'][0].onerror = reject;
+        weaponsImages.sword['left'][0].src = '../media/weapons/sword/left/sword.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        weaponsImages.sword['left'][1].onload = resolve;
+        weaponsImages.sword['left'][1].onerror = reject;
+        weaponsImages.sword['left'][1].src = '../media/weapons/sword/left/sword2.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        weaponsImages.sword['right'][0].onload = resolve;
+        weaponsImages.sword['right'][0].onerror = reject;
+        weaponsImages.sword['right'][0].src = '../media/weapons/sword/right/sword.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        weaponsImages.sword['right'][1].onload = resolve;
+        weaponsImages.sword['right'][1].onerror = reject;
+        weaponsImages.sword['right'][1].src = '../media/weapons/sword/right/sword2.png';
+    }),
+
+
+    // AK
+    new Promise((resolve, reject) => {
+        weaponsImages.AK['left'].onload = resolve;
+        weaponsImages.AK['left'].onerror = reject;
+        weaponsImages.AK['left'].src = '../media/weapons/AK/left/AK.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        weaponsImages.AK['right'].onload = resolve;
+        weaponsImages.AK['right'].onerror = reject;
+        weaponsImages.AK['right'].src = '../media/weapons/AK/right/AK.png';
+    }),
+
+    // gun 
+    new Promise((resolve, reject) => {
+        weaponsImages.gun['left'].onload = resolve;
+        weaponsImages.gun['left'].onerror = reject;
+        weaponsImages.gun['left'].src = '../media/weapons/gun/left/gun.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        weaponsImages.gun['right'].onload = resolve;
+        weaponsImages.gun['right'].onerror = reject;
+        weaponsImages.gun['right'].src = '../media/weapons/gun/right/gun.png';
+    }),
+
+    // slash
+    new Promise((resolve, reject) => {
+        projectilesImages.slash['left'].onload = resolve;
+        projectilesImages.slash['left'].onerror = reject;
+        projectilesImages.slash['left'].src = '../media/projectiles/slash/left/slash.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        projectilesImages.slash['right'].onload = resolve;
+        projectilesImages.slash['right'].onerror = reject;
+        projectilesImages.slash['right'].src = '../media/projectiles/slash/right/slash.png';
+    }),
+
+    // AK bullet
+    new Promise((resolve, reject) => {
+        projectilesImages.bulletAK['left'].onload = resolve;
+        projectilesImages.bulletAK['left'].onerror = reject;
+        projectilesImages.bulletAK['left'].src = '../media/projectiles/bullet-AK/left/bullet-AK.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        projectilesImages.bulletAK['right'].onload = resolve;
+        projectilesImages.bulletAK['right'].onerror = reject;
+        projectilesImages.bulletAK['right'].src = '../media/projectiles/bullet-AK/right/bullet-AK.png';
+    }),
+
+    // bullet gun
+    new Promise((resolve, reject) => {
+        projectilesImages.bulletGun['left'].onload = resolve;
+        projectilesImages.bulletGun['left'].onerror = reject;
+        projectilesImages.bulletGun['left'].src = '../media/projectiles/bullet-gun/left/bullet-gun.png';
+    }),
+
+    new Promise((resolve, reject) => {
+        projectilesImages.bulletGun['right'].onload = resolve;
+        projectilesImages.bulletGun['right'].onerror = reject;
+        projectilesImages.bulletGun['right'].src = '../media/projectiles/bullet-gun/right/bullet-gun.png';
+    }),
+
 
 
 ];
@@ -243,22 +375,22 @@ players.forEach(player => {
     );
 });
 
-trajectoriesImages.claw['left'].forEach((image, i) => {
+projectilesImages.claw['left'].forEach((image, i) => {
     assets.push(
         new Promise((resolve, reject) => {
             image.onload = resolve;
             image.onerror = reject;
-            image.src = `../media/weapons/claw/left/${i + 1}.png`;
+            image.src = `../media/projectiles/claw/left/${i + 1}.png`;
         })
     );
 });
 
-trajectoriesImages.claw['right'].forEach((image, i) => {
+projectilesImages.claw['right'].forEach((image, i) => {
     assets.push(
         new Promise((resolve, reject) => {
             image.onload = resolve;
             image.onerror = reject;
-            image.src = `../media/weapons/claw/right/${i + 1}.png`;
+            image.src = `../media/projectiles/claw/right/${i + 1}.png`;
         })
     );
 });
